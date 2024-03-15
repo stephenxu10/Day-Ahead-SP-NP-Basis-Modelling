@@ -31,6 +31,7 @@ if csv is not None:
 
         df['PGE_Malin_Delta'] = df['PG&E'] - df['Malin']
         df['Load_Delta'] = df['NP15_LOAD'] - df['SP15_LOAD']
+        df['Load_Sum'] = df['NP15_LOAD'] + df['SP15_LOAD']
 
         drop_columns = ['DA SPNP', 'Date/Time', "NP15_LOAD", "Malin", "PG&E", 'SP15_LOAD']
         df = df.drop(columns=drop_columns, errors='ignore')
