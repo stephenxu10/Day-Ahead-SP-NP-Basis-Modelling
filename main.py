@@ -5,6 +5,9 @@ import plotly.express as px
 import pickle
 import os
 from sklearn.preprocessing import StandardScaler
+import warnings
+
+warnings.simplefilter("ignore")
 
 # Improved layout
 st.sidebar.title("DA SPNP Prediction Application")
@@ -23,7 +26,13 @@ if csv is not None:
         df.columns = df.columns.str.strip()
         dates = pd.to_datetime(df['Date/Time'])
 
-        drop_columns = ['DA SPNP', 'Date/Time', "NP15_LOAD", "Malin", "SOCAL"]
+        df['NP15_LOAD'] = df['NP15_LOAD'].str.replace(',', '').astype('float64')
+        df['SP15_LOAD'] = df['SP15_LOAD'].str.replace(',', '').astype('float64')
+
+        df['PGE_Malin_Delta'] = df['PG&E'] - df['Malin']
+        df['Load_Delta'] = df['NP15_LOAD'] - df['SP15_LOAD']
+
+        drop_columns = ['DA SPNP', 'Date/Time', "NP15_LOAD", "Malin", "PG&E", 'SP15_LOAD']
         df = df.drop(columns=drop_columns, errors='ignore')
 
         for col in df.columns:
@@ -33,9 +42,12 @@ if csv is not None:
                 df[col] = pd.to_numeric(df[col], errors='coerce')  # Convert to numeric
         
         scaler = StandardScaler()
-        df_scaled = scaler.fit_transform(df)
-        
-        if st.checkbox('Show scaled data'):
+        df_scaled_array = scaler.fit_transform(df)
+
+        # Convert the scaled array back to a DataFrame with original column names
+        df_scaled = pd.DataFrame(df_scaled_array, columns=df.columns)
+
+        if st.checkbox('Show processed data'):
             st.write("Scaled Training Data:")
             st.dataframe(df_scaled)
 
