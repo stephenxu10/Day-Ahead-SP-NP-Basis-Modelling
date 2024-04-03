@@ -26,10 +26,10 @@ class RegressionNN(nn.Module):
 warnings.simplefilter("ignore")
 
 st.sidebar.title("DA SPNP Prediction Application")
-csv = st.sidebar.file_uploader("Upload CSV data for DA SPNP", type="csv")
+csv = st.sidebar.file_uploader("Upload Excel data for DA SPNP", type="xlsx")
 
 if csv is not None:
-    df = pd.read_csv(csv)
+    df = pd.read_excel(csv)
     if st.checkbox('Show raw data'):
         st.write("Uploaded Data:")
         st.dataframe(df.head())
@@ -42,7 +42,6 @@ if csv is not None:
 
     df.columns = df.columns.str.strip()
     dates = pd.to_datetime(df['Date/Time'])
-    df = df.rename(columns={df.columns[-1]: "DA SPNP"})
 
     try:
         df['NP15_LOAD'] = df['NP15_LOAD'].str.replace(',', '').astype('float64')
@@ -60,6 +59,9 @@ if csv is not None:
         pass
 
     df = df.drop(columns=['SP15 (SOLAR_FORECAST Latest) - NP15 (SOLAR_FORECAST Latest) Maximum', 'Date/Time', 'DA SPNP'], errors='ignore')
+
+    if 'DALMP' in df.columns[-1]:
+        df = df.drop(columns=[df.columns[-1]])
 
     for col in df.columns:
         if df[col].dtype == 'object':
@@ -98,4 +100,4 @@ if csv is not None:
 
 
 else:
-    st.write("Awaiting CSV file to be uploaded. Currently, no file is uploaded.")
+    st.write("Awaiting Excel file to be uploaded. Currently, no file is uploaded.")
